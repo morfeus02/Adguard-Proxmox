@@ -19,7 +19,7 @@ This repository contains a script for setting up a lightweight and efficient AdG
 
 To install, run the following command in your Proxmox server's terminal:
 
-curl -LJO https://raw.githubusercontent.com/morfeus02/Adguardd-Proxomx/MainBranch/install.sh && chmod +x install.sh && ./install.sh && rm install.sh
+curl -LJO https://raw.githubusercontent.com/morfeus02/Adguard-Proxmox/main/install.sh && chmod +x install.sh && ./install.sh && rm install.sh
 
 ## Usage
 
