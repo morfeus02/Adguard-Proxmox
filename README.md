@@ -45,4 +45,4 @@ This project is licensed under the [MIT License](LICENSE).
 
 - [AdGuard Home](https://github.com/AdguardTeam/AdGuardHome) for the excellent ad-blocking software.
 - The Proxmox community for the great virtualization platform.
-- Project based on haris2887/Adguardd-Proxomx but completely rewritten code
+- Project idea based on haris2887/Adguardd-Proxomx but completely rewritten code
