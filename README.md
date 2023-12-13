@@ -18,14 +18,15 @@ This repository contains a script for setting up a lightweight and efficient AdG
 ## Installation
 
 To install, run the following command in your Proxmox server's terminal:
-
+```sh
 curl -LJO https://raw.githubusercontent.com/morfeus02/Adguard-Proxmox/main/install.sh && chmod +x install.sh && ./install.sh && rm install.sh
-
+```
 ## Usage
 
 After the container is set up and AdGuard Home is installed, you can access the AdGuard Home web interface by navigating to:
+```sh
 http://[Container-IP]:3000
-
+```
 
 Complete the initial setup through the web interface to start using AdGuard Home.
 
