@@ -52,5 +52,8 @@ pct exec $number -- bash -c 'curl -s -S -L https://raw.githubusercontent.com/Adg
 # Reboot the container
 pct exec $number -- reboot
 
+# Covert CIRD to plain IP
+plain_ip="${ip%%/*}"
+
 # Final message
-echo "You can now browse to http://$ip:3000 to resume the rest of the configuration."
+echo "You can now browse to http://$plain_ip:3000 to resume the rest of the configuration."
