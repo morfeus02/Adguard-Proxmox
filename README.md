@@ -8,12 +8,14 @@ This repository contains a script for setting up a lightweight and efficient AdG
 - **Automated Container Creation**: The script automates the process of creating an LXC container in Proxmox.
 - **Dynamic Template Retrieval**: Automatically finds and uses the latest Alpine Linux LXC template available on Proxmox.
 - **AdGuard Home Installation**: Installs and configures AdGuard Home for immediate use.
+- **Customizable Disk Size**: Allows specifying the container's disk size during setup.
 
 ## Prerequisites
 
 - A Proxmox VE installation (version 6.0 or later recommended).
 - SSH access to your Proxmox server.
 - User privileges sufficient to create LXC containers and download templates.
+- `bridge-utils` package installed on the Proxmox host (for network bridge information). The script will check for `brctl` and exit if not found.
 
 ## Installation
 
@@ -32,7 +34,7 @@ Complete the initial setup through the web interface to start using AdGuard Home
 
 ## Customization
 
-You can modify the script to customize various aspects like the default memory allocation, storage location, and more.
+The script interactively prompts for key parameters such as container ID, name, CPU cores, disk size (in GB), and network settings. For other settings, like the default memory allocation (currently 512MB) or the storage pool for the root disk (currently local-lvm), you can modify the script directly.
 
 ## Contributing
 
