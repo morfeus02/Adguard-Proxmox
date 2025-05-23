@@ -14,6 +14,7 @@ This repository contains a script for setting up a lightweight and efficient AdG
 - A Proxmox VE installation (version 6.0 or later recommended).
 - SSH access to your Proxmox server.
 - User privileges sufficient to create LXC containers and download templates.
+- `bridge-utils` package installed on the Proxmox host (for network bridge information). The script will check for `brctl` and exit if not found.
 
 ## Installation
 
