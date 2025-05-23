@@ -16,6 +16,11 @@ if ! [[ "$cpu" =~ ^[0-9]+$ && "$cpu" -gt 0 ]]; then
     echo "Error: CPU Cores must be a positive integer." >&2
     exit 1
 fi
+read -p 'Disk Size in GB (e.g., 8): ' disk_size
+if ! [[ "$disk_size" =~ ^[1-9][0-9]*$ ]]; then
+    echo "Error: Disk Size must be a positive integer (e.g., 8)." >&2
+    exit 1
+fi
 read -p 'Static IP Address Of container(/CIDR) eg 192.168.1.20/24: ' ip
 if ! [[ "$ip" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$ ]]; then
     echo "Error: Invalid Static IP Address format. Expected format: xxx.xxx.xxx.xxx/xx" >&2
@@ -81,8 +86,8 @@ if pct list | grep -qw "$number"; then
 fi
 
 # Create and start the container on local-lvm storage
-echo "Creating container $name (ID: $number)..."
-pct create $number --storage local-lvm --ostype alpine --hostname "$name" --net0 name=eth0,ip="$ip",gw="$gw",bridge="$bridge" --memory 512 --cores $cpu --unprivileged 1 --cmode shell --onboot 1 local:vztmpl/$latest_alpine_template
+echo "Creating container $name (ID: $number) with disk size ${disk_size}G..."
+pct create $number local:vztmpl/$latest_alpine_template --rootfs local-lvm:$disk_size --ostype alpine --hostname "$name" --net0 name=eth0,ip="$ip",gw="$gw",bridge="$bridge" --memory 512 --cores $cpu --unprivileged 1 --cmode shell --onboot 1
 if [ $? -eq 0 ]; then
     echo "Container $name (ID: $number) created successfully."
 else
