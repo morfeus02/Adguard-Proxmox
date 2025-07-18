@@ -21,11 +21,20 @@ if ! [[ "$disk_size" =~ ^[1-9][0-9]*$ ]]; then
     echo "Error: Disk Size must be a positive integer (e.g., 8)." >&2
     exit 1
 fi
-read -p 'Static IP Address Of container(/CIDR) eg 192.168.1.20/24: ' ip
-if ! [[ "$ip" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$ ]]; then
-    echo "Error: Invalid Static IP Address format. Expected format: xxx.xxx.xxx.xxx/xx" >&2
+read -p 'Use DHCP (yes/no): ' useDHCP
+if [[ "$useDHCP" =~ ^yes$ ]]; then
+    ip='dhcp'
+elif [[ "$useDHCP" =~ ^no$ ]]; then
+    read -p 'Static IP Address Of container(/CIDR) eg 192.168.1.20/24: ' ip
+    if ! [[ "$ip" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$ ]]; then
+        echo "Error: Invalid Static IP Address format. Expected format: xxx.xxx.xxx.xxx/xx" >&2
+        exit 1
+    fi
+else
+    echo 'Error: Invalid option. Expected: yes OR no' >&2
     exit 1
 fi
+    
 read -p 'Default Gateway eg 192.168.1.1: ' gw
 if ! [[ "$gw" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
     echo "Error: Invalid Default Gateway format. Expected format: xxx.xxx.xxx.xxx" >&2
