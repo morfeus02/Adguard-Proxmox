@@ -21,14 +21,24 @@ if ! [[ "$disk_size" =~ ^[1-9][0-9]*$ ]]; then
     echo "Error: Disk Size must be a positive integer (e.g., 8)." >&2
     exit 1
 fi
-read -p 'Static IP Address Of container(/CIDR) eg 192.168.1.20/24: ' ip
-if ! [[ "$ip" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$ ]]; then
-    echo "Error: Invalid Static IP Address format. Expected format: xxx.xxx.xxx.xxx/xx" >&2
-    exit 1
-fi
-read -p 'Default Gateway eg 192.168.1.1: ' gw
-if ! [[ "$gw" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
-    echo "Error: Invalid Default Gateway format. Expected format: xxx.xxx.xxx.xxx" >&2
+use_dhcp=false
+read -p 'Use DHCP (yes/no): ' useDHCP
+if [[ "$useDHCP" =~ ^yes$ ]]; then
+    ip='dhcp'
+    use_dhcp=true
+elif [[ "$useDHCP" =~ ^no$ ]]; then
+    read -p 'Static IP Address Of container(/CIDR) eg 192.168.1.20/24: ' ip
+    if ! [[ "$ip" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$ ]]; then
+        echo "Error: Invalid Static IP Address format. Expected format: xxx.xxx.xxx.xxx/xx" >&2
+        exit 1
+    fi
+    read -p 'Default Gateway eg 192.168.1.1: ' gw
+    if ! [[ "$gw" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+        echo "Error: Invalid Default Gateway format. Expected format: xxx.xxx.xxx.xxx" >&2
+        exit 1
+    fi
+else
+    echo 'Error: Invalid option. Expected: yes OR no' >&2
     exit 1
 fi
 
@@ -87,7 +97,12 @@ fi
 
 # Create and start the container on local-lvm storage
 echo "Creating container $name (ID: $number) with disk size ${disk_size}G..."
-pct create $number local:vztmpl/$latest_alpine_template --rootfs local-lvm:$disk_size --ostype alpine --hostname "$name" --net0 name=eth0,ip="$ip",gw="$gw",bridge="$bridge" --memory 512 --cores $cpu --unprivileged 1 --cmode shell --onboot 1
+if $use_dhcp; then
+    net0="name=eth0,ip=$ip,bridge=$bridge"
+else
+    net0="name=eth0,ip=$ip,gw=$gw,bridge=$bridge"
+fi
+pct create $number local:vztmpl/$latest_alpine_template --rootfs local-lvm:$disk_size --ostype alpine --hostname "$name" --net0 "$net0" --memory 512 --cores $cpu --unprivileged 1 --cmode shell --onboot 1
 if [ $? -eq 0 ]; then
     echo "Container $name (ID: $number) created successfully."
 else
@@ -121,9 +136,13 @@ fi
 # Reboot the container
 pct exec $number -- reboot
 
-# Covert CIRD to plain IP
-plain_ip="${ip%%/*}"
+if $use_dhcp; then
+    echo "Container is using DHCP. Find the IP via your DHCP server or run: pct exec $number -- ip -4 -o addr show dev eth0"
+else
+    # Covert CIRD to plain IP
+    plain_ip="${ip%%/*}"
+    echo "You can now browse to http://$plain_ip:3000 to resume the rest of the configuration."
+fi
 
 # Final message
-echo "You can now browse to http://$plain_ip:3000 to resume the rest of the configuration."
 echo "Installation of AdGuard Home container $name (ID: $number) completed successfully!"
