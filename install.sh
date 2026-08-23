@@ -16,6 +16,20 @@ if ! [[ "$cpu" =~ ^[0-9]+$ && "$cpu" -gt 0 ]]; then
     echo "Error: CPU Cores must be a positive integer." >&2
     exit 1
 fi
+# AdGuard Home's memory use grows with the number of enabled blocklists and the
+# in-memory query log/statistics, so 512MB is only safe for a minimal filter set.
+read -p 'Memory in MB [1024]: ' memory
+memory="${memory:-1024}"
+if ! [[ "$memory" =~ ^[1-9][0-9]*$ ]]; then
+    echo "Error: Memory must be a positive integer in MB (e.g., 1024)." >&2
+    exit 1
+fi
+if [ "$memory" -lt 512 ]; then
+    echo "Error: Memory must be at least 512 MB. AdGuard Home will be OOM-killed or thrash below this." >&2
+    exit 1
+fi
+swap="$memory"
+
 read -p 'Disk Size in GB (e.g., 8): ' disk_size
 if ! [[ "$disk_size" =~ ^[1-9][0-9]*$ ]]; then
     echo "Error: Disk Size must be a positive integer (e.g., 8)." >&2
@@ -96,13 +110,13 @@ if pct list | grep -qw "$number"; then
 fi
 
 # Create and start the container on local-lvm storage
-echo "Creating container $name (ID: $number) with disk size ${disk_size}G..."
+echo "Creating container $name (ID: $number) with ${memory}MB RAM, ${swap}MB swap and disk size ${disk_size}G..."
 if $use_dhcp; then
     net0="name=eth0,ip=$ip,bridge=$bridge"
 else
     net0="name=eth0,ip=$ip,gw=$gw,bridge=$bridge"
 fi
-pct create $number local:vztmpl/$latest_alpine_template --rootfs local-lvm:$disk_size --ostype alpine --hostname "$name" --net0 "$net0" --memory 512 --cores $cpu --unprivileged 1 --cmode shell --onboot 1
+pct create $number local:vztmpl/$latest_alpine_template --rootfs local-lvm:$disk_size --ostype alpine --hostname "$name" --net0 "$net0" --memory $memory --swap $swap --cores $cpu --unprivileged 1 --cmode shell --onboot 1
 if [ $? -eq 0 ]; then
     echo "Container $name (ID: $number) created successfully."
 else

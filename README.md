@@ -8,7 +8,7 @@ This repository contains a script for setting up a lightweight and efficient AdG
 - **Automated Container Creation**: The script automates the process of creating an LXC container in Proxmox.
 - **Dynamic Template Retrieval**: Automatically finds and uses the latest Alpine Linux LXC template available on Proxmox.
 - **AdGuard Home Installation**: Installs and configures AdGuard Home for immediate use.
-- **Customizable Disk Size**: Allows specifying the container's disk size during setup.
+- **Customizable Resources**: Allows specifying the container's CPU cores, memory and disk size during setup.
 
 ## Prerequisites
 
@@ -34,7 +34,11 @@ Complete the initial setup through the web interface to start using AdGuard Home
 
 ## Customization
 
-The script interactively prompts for key parameters such as container ID, name, CPU cores, disk size (in GB), and network settings. For other settings, like the default memory allocation (currently 512MB) or the storage pool for the root disk (currently local-lvm), you can modify the script directly.
+The script interactively prompts for key parameters such as container ID, name, CPU cores, memory (in MB), disk size (in GB), and network settings. For other settings, like the storage pool for the root disk (currently local-lvm), you can modify the script directly.
+
+### Sizing the container
+
+Memory defaults to 1024 MB, with swap set to the same value, and the minimum accepted is 512 MB. AdGuard Home keeps its filtering rules in memory and also holds the query log and statistics there, so its footprint grows with the number of enabled blocklists and the volume of DNS traffic. 512 MB is enough only for a small filter set; if you enable several large lists, allocate 1024 MB or more. An undersized container will be OOM-killed or spend its time thrashing swap, which shows up as a CPU spike and an unresponsive AdGuard Home instance.
 
 ## Contributing
 
